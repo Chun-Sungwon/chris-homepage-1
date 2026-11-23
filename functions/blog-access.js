@@ -2,11 +2,17 @@ const BLOG_URL = "https://blog.naver.com/dic17";
 
 const headers = {
   "Cache-Control": "no-store",
-  "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'",
   "Content-Type": "text/html; charset=utf-8",
   "Referrer-Policy": "no-referrer",
   "X-Content-Type-Options": "nosniff",
 };
+
+function responseHeaders(request) {
+  return {
+    ...headers,
+    "Content-Security-Policy": `default-src 'none'; style-src 'unsafe-inline'; form-action ${new URL(request.url).origin}; base-uri 'none'; frame-ancestors 'none'`,
+  };
+}
 
 function renderPage(message = "") {
   const alert = message ? `<p class="error" role="alert">${message}</p>` : "";
@@ -84,38 +90,38 @@ function renderPage(message = "") {
 </html>`;
 }
 
-function htmlResponse(message, status = 200) {
-  return new Response(renderPage(message), { status, headers });
+function htmlResponse(message, status, request) {
+  return new Response(renderPage(message), { status, headers: responseHeaders(request) });
 }
 
-export async function onRequestGet() {
-  return htmlResponse();
+export async function onRequestGet({ request }) {
+  return htmlResponse("", 200, request);
 }
 
 export async function onRequestPost({ request, env }) {
   if (typeof env.BLOG_PASSWORD !== "string" || env.BLOG_PASSWORD.length === 0) {
-    return htmlResponse("블로그 비밀번호 설정이 완료되지 않았습니다. 사이트 관리자에게 문의해 주세요.", 503);
+    return htmlResponse("블로그 비밀번호 설정이 완료되지 않았습니다. 사이트 관리자에게 문의해 주세요.", 503, request);
   }
 
   const contentType = request.headers.get("content-type") || "";
   if (!contentType.startsWith("application/x-www-form-urlencoded")) {
-    return new Response("Unsupported Media Type", { status: 415, headers });
+    return new Response("Unsupported Media Type", { status: 415, headers: responseHeaders(request) });
   }
 
   const body = await request.text();
   if (body.length > 2048) {
-    return new Response("Request Too Large", { status: 413, headers });
+    return new Response("Request Too Large", { status: 413, headers: responseHeaders(request) });
   }
 
   const submittedPassword = new URLSearchParams(body).get("password");
   if (submittedPassword !== env.BLOG_PASSWORD) {
-    return htmlResponse("비밀번호가 올바르지 않습니다. 다시 입력해 주세요.", 401);
+    return htmlResponse("비밀번호가 올바르지 않습니다. 다시 입력해 주세요.", 401, request);
   }
 
   return new Response(null, {
     status: 303,
     headers: {
-      ...headers,
+      ...responseHeaders(request),
       Location: BLOG_URL,
     },
   });
