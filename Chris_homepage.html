@@ -196,6 +196,20 @@
     .service h3 { margin: 20px 0 10px; font-size: 19px; letter-spacing: -.03em; }
     .service p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.8; word-break: keep-all; }
 
+    .history-list { max-width: 760px; margin: 0; padding: 0; list-style: none; }
+    .history-item {
+      display: grid;
+      grid-template-columns: 100px 1fr;
+      align-items: center;
+      gap: 20px;
+      padding: 24px 26px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--panel);
+    }
+    .history-year { color: var(--accent); font-size: 15px; font-weight: 850; }
+    .history-item p { margin: 0; font-size: 15px; font-weight: 700; }
+
     .approach {
       display: grid;
       grid-template-columns: .8fr 1.2fr;
@@ -272,6 +286,7 @@
     <a class="brand" href="#top" aria-label="천성원 홈">CHUN <span>·</span> 천성원</a>
     <nav aria-label="주요 메뉴">
       <a href="#services">함께하는 일</a>
+      <a href="#history">이력</a>
       <a href="#approach">진행 방식</a>
       <a href="#contact">문의하기</a>
     </nav>
@@ -281,11 +296,12 @@
     <div class="wrap hero">
       <div>
         <p class="eyebrow">REAL ESTATE · PARTNERSHIP</p>
-        <h1>부동산의 가치를<br><em>함께 찾습니다.</em></h1>
+        <h1>Chris의 홈페이지<br><em>오신것을 환영합니다</em></h1>
         <p class="lead">공인중개사 천성원입니다. 좋은 선택은 충분히 살펴보는 데서 시작됩니다. 부동산 중개와 자산관리, 협업에 관한 이야기를 나눠 보세요.</p>
         <div class="actions">
           <a class="button primary" href="partnership.html">협업 문의하기 <span aria-hidden="true">&nbsp;↗</span></a>
           <a class="button secondary" href="#services">어떤 일을 하나요?</a>
+          <a class="button secondary" href="/blog-access" target="_blank" rel="noopener noreferrer">네이버 블로그 <span aria-hidden="true">&nbsp;↗</span></a>
         </div>
       </div>
       <aside class="hero-card" aria-label="천성원의 소개">
@@ -320,6 +336,34 @@
             <p>함께 만들 수 있는 아이디어와 공동 마케팅, 콘텐츠 제안을 열린 마음으로 검토합니다.</p>
           </article>
         </div>
+      </div>
+    </section>
+
+    <section class="content" id="history">
+      <div class="wrap">
+        <div class="section-heading">
+          <p class="eyebrow">MY HISTORY</p>
+          <h2>천성원의 이력</h2>
+          <p>학업과 경력, 자격 취득 이력을 소개합니다.</p>
+        </div>
+        <ol class="history-list">
+          <li class="history-item">
+            <time class="history-year" datetime="2005">05년</time>
+            <p>아주대학교 응용화학과 졸업</p>
+          </li>
+          <li class="history-item">
+            <span class="history-year">05년 ~ 현재</span>
+            <p>LG Display 근무</p>
+          </li>
+          <li class="history-item">
+            <time class="history-year" datetime="2021">21년</time>
+            <p>공인중개사 취득</p>
+          </li>
+          <li class="history-item">
+            <time class="history-year" datetime="2022">22년</time>
+            <p>관광통역 안내사 취득</p>
+          </li>
+        </ol>
       </div>
     </section>
 
