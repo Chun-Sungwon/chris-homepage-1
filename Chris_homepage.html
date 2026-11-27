@@ -242,6 +242,50 @@
     .contact h2 { margin: 0; font-size: clamp(24px, 4vw, 34px); letter-spacing: -.05em; }
     .contact p { margin: 10px 0 0; color: var(--muted); font-size: 14px; line-height: 1.7; }
 
+    .classifier {
+      display: grid;
+      grid-template-columns: minmax(260px, .85fr) 1.15fr;
+      gap: 24px;
+      align-items: stretch;
+    }
+    .classifier-panel {
+      min-height: 270px;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: rgba(10, 18, 34, .72);
+    }
+    #webcam-container { width: 100%; }
+    #webcam-container canvas {
+      width: 100% !important;
+      max-height: 360px;
+      height: auto !important;
+      display: block;
+      border-radius: 21px;
+    }
+    .classifier-controls {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 28px;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: var(--panel);
+    }
+    .classifier-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+    .classifier-actions button { cursor: pointer; }
+    .classifier-actions button:disabled { cursor: not-allowed; opacity: .55; }
+    #classifier-status { min-height: 21px; margin: 0; color: var(--muted); font-size: 13px; }
+    #label-container { display: grid; gap: 13px; }
+    .prediction-row { display: grid; grid-template: auto / 62px 1fr 48px; align-items: center; gap: 10px; }
+    .prediction-name { font-size: 14px; font-weight: 800; }
+    .prediction-percent { text-align: right; color: var(--accent); font-size: 13px; font-weight: 800; }
+    .prediction-track { height: 10px; overflow: hidden; border-radius: 999px; background: rgba(255, 255, 255, .09); }
+    .prediction-bar { width: 0; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #78aaff, var(--accent)); transition: width .18s ease; }
+
     footer {
       display: flex;
       justify-content: space-between;
@@ -262,6 +306,7 @@
       .service { min-height: auto; }
       .approach { grid-template-columns: 1fr; gap: 32px; }
       .contact { align-items: flex-start; flex-direction: column; }
+      .classifier { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 480px) {
@@ -290,6 +335,7 @@
       <a href="#services">함께하는 일</a>
       <a href="#history">이력</a>
       <a href="#approach">진행 방식</a>
+      <a href="#animal-classifier">얼굴 판별</a>
       <a href="#contact">문의하기</a>
     </nav>
   </header>
@@ -404,6 +450,29 @@
       </div>
     </section>
 
+    <section class="content" id="animal-classifier">
+      <div class="wrap">
+        <div class="section-heading">
+          <p class="eyebrow">ANIMAL FACE CLASSIFIER</p>
+          <h2>강아지와 고양이를 구분해요</h2>
+          <p>카메라에 강아지나 고양이 얼굴을 보여 주면 AI가 확률을 표시합니다.</p>
+        </div>
+        <div class="classifier">
+          <div class="classifier-panel">
+            <div id="webcam-container"></div>
+          </div>
+          <div class="classifier-controls">
+            <div class="classifier-actions">
+              <button class="button primary" id="start-camera" type="button">카메라 시작</button>
+              <button class="button secondary" id="stop-camera" type="button" disabled>카메라 끄기</button>
+            </div>
+            <p id="classifier-status" role="status" aria-live="polite">카메라 권한을 허용해 주세요.</p>
+            <div id="label-container"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section class="content" id="comments">
       <div class="wrap">
         <div class="section-heading">
@@ -433,5 +502,134 @@
     <span>© 천성원. All rights reserved.</span>
     <a href="index.html">천성원의 로또 번호 도구</a>
   </footer>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+  <script>
+    const MODEL_URL = "https://teachablemachine.withgoogle.com/models/LcLUAgomV/";
+    const CLASS_NAMES_KO = { Cat: "고양이", Dog: "강아지" };
+
+    let model;
+    let webcam;
+    let maxPredictions = 0;
+    let animationFrameId = null;
+    let isRunning = false;
+
+    const startButton = document.getElementById("start-camera");
+    const stopButton = document.getElementById("stop-camera");
+    const webcamContainer = document.getElementById("webcam-container");
+    const labelContainer = document.getElementById("label-container");
+    const classifierStatus = document.getElementById("classifier-status");
+
+    function setStatus(message) {
+      classifierStatus.textContent = message;
+    }
+
+    function createPredictionRows(predictions) {
+      labelContainer.replaceChildren();
+      predictions.forEach(() => {
+        const row = document.createElement("div");
+        row.className = "prediction-row";
+
+        const name = document.createElement("span");
+        name.className = "prediction-name";
+
+        const track = document.createElement("div");
+        track.className = "prediction-track";
+        const bar = document.createElement("div");
+        bar.className = "prediction-bar";
+        track.appendChild(bar);
+
+        const percent = document.createElement("span");
+        percent.className = "prediction-percent";
+        row.append(name, track, percent);
+        labelContainer.appendChild(row);
+      });
+    }
+
+    async function loop() {
+      if (!isRunning || !webcam) return;
+      webcam.update();
+      await predict();
+      animationFrameId = window.requestAnimationFrame(loop);
+    }
+
+    async function predict() {
+      if (!model || !webcam) return;
+      const predictions = await model.predict(webcam.canvas);
+
+      predictions.forEach((prediction, index) => {
+        const row = labelContainer.children[index];
+        if (!row) return;
+        const probability = prediction.probability;
+        row.querySelector(".prediction-name").textContent =
+          CLASS_NAMES_KO[prediction.className] || prediction.className;
+        row.querySelector(".prediction-bar").style.width =
+          `${Math.round(probability * 100)}%`;
+        row.querySelector(".prediction-percent").textContent =
+          `${Math.round(probability * 100)}%`;
+      });
+
+      const top = predictions.reduce((best, prediction) =>
+        prediction.probability > best.probability ? prediction : best
+      );
+      setStatus(`판별 결과: ${CLASS_NAMES_KO[top.className] || top.className} · ${Math.round(top.probability * 100)}%`);
+    }
+
+    async function startClassifier() {
+      if (isRunning) return;
+      startButton.disabled = true;
+      setStatus("모델과 카메라를 준비하는 중입니다...");
+
+      try {
+        if (!model) {
+          model = await tmImage.load(
+            MODEL_URL + "model.json",
+            MODEL_URL + "metadata.json"
+          );
+          maxPredictions = model.getTotalClasses();
+        }
+
+        if (!webcam) {
+          webcam = new tmImage.Webcam(224, 224, true);
+        }
+
+        await webcam.setup();
+        await webcam.play();
+        isRunning = true;
+        webcamContainer.replaceChildren(webcam.canvas);
+
+        const predictions = Array.from({ length: maxPredictions }, () => ({
+          className: "",
+          probability: 0
+        }));
+        createPredictionRows(predictions);
+        stopButton.disabled = false;
+        setStatus("카메라가 켜졌습니다.");
+        animationFrameId = window.requestAnimationFrame(loop);
+      } catch (error) {
+        console.error(error);
+        setStatus("카메라를 시작할 수 없습니다. 브라우저 권한과 HTTPS 연결을 확인해 주세요.");
+        startButton.disabled = false;
+      }
+    }
+
+    function stopClassifier() {
+      isRunning = false;
+      if (animationFrameId !== null) {
+        window.cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+      }
+      if (webcam) webcam.stop();
+      webcam = null;
+      webcamContainer.replaceChildren();
+      labelContainer.replaceChildren();
+      stopButton.disabled = true;
+      startButton.disabled = false;
+      setStatus("카메라가 꺼졌습니다.");
+    }
+
+    startButton.addEventListener("click", startClassifier);
+    stopButton.addEventListener("click", stopClassifier);
+  </script>
 </body>
 </html>
