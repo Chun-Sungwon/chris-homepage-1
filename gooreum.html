@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f7f5ef">
+  <meta name="description" content="사랑스러운 강아지 구름이를 소개합니다.">
+  <title>구름이의 작은 세상</title>
+  <link rel="preconnect" href="https://images.unsplash.com">
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #29352d;
+      background: #f7f5ef;
+      font-synthesis: none;
+      --ink: #29352d;
+      --muted: #737b70;
+      --green: #58765b;
+      --green-dark: #405d45;
+      --cream: #f7f5ef;
+      --peach: #f0c5a5;
+      --line: #e6e5dc;
+      --card: #fffefa;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { min-width: 320px; margin: 0; }
+    a { color: inherit; }
+    a:focus-visible, button:focus-visible { outline: 3px solid var(--green); outline-offset: 4px; }
+    img { display: block; width: 100%; }
+
+    .wrap { width: min(1120px, calc(100% - 40px)); margin-inline: auto; }
+    .header {
+      min-height: 78px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      border-bottom: 1px solid var(--line);
+    }
+    .brand { display: inline-flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 850; text-decoration: none; }
+    .brand-mark { display: grid; width: 36px; height: 36px; place-items: center; border-radius: 50%; background: #e7eddf; font-size: 19px; }
+    nav { display: flex; gap: clamp(16px, 3vw, 32px); }
+    nav a { color: var(--muted); font-size: 13px; font-weight: 750; text-decoration: none; }
+    nav a:hover { color: var(--green-dark); }
+
+    .hero {
+      min-height: 610px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      gap: clamp(35px, 7vw, 90px);
+      padding-block: 70px;
+    }
+    .eyebrow { margin: 0 0 16px; color: var(--green); font-size: 12px; font-weight: 850; letter-spacing: .15em; }
+    h1 { margin: 0; font-size: clamp(48px, 7vw, 78px); line-height: 1.08; letter-spacing: -.075em; }
+    h1 span { color: var(--green); }
+    .hero-copy > p:not(.eyebrow) { max-width: 450px; margin: 22px 0 28px; color: var(--muted); font-size: 16px; line-height: 1.9; word-break: keep-all; }
+    .button {
+      min-height: 50px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      padding: 0 21px;
+      border: 0;
+      border-radius: 999px;
+      color: #fff;
+      background: var(--green);
+      font: inherit;
+      font-size: 14px;
+      font-weight: 800;
+      text-decoration: none;
+      transition: transform .18s ease, background .18s ease;
+    }
+    .button:hover { transform: translateY(-2px); background: var(--green-dark); }
+    .hero-photo { position: relative; max-width: 490px; justify-self: end; }
+    .hero-photo img { height: 440px; border-radius: 46% 46% 24px 24px; object-fit: cover; box-shadow: 0 22px 55px rgba(50, 64, 46, .14); }
+    .photo-note {
+      position: absolute;
+      right: -18px;
+      bottom: 24px;
+      padding: 14px 18px;
+      border: 1px solid rgba(255, 255, 255, .8);
+      border-radius: 16px;
+      background: rgba(255, 254, 250, .94);
+      box-shadow: 0 8px 24px rgba(50, 64, 46, .1);
+      font-size: 13px;
+      font-weight: 800;
+      transform: rotate(3deg);
+    }
+
+    .intro-strip { padding: 22px 0; border-block: 1px solid var(--line); background: rgba(255, 254, 250, .6); }
+    .quick-facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .fact { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 8px; }
+    .fact-icon { font-size: 23px; }
+    .fact-label { display: block; margin-bottom: 3px; color: var(--muted); font-size: 11px; }
+    .fact strong { font-size: 14px; }
+
+    section.content { padding: 92px 0; }
+    .section-heading { max-width: 620px; margin: 0 auto 38px; text-align: center; }
+    .section-heading h2 { margin: 0; font-size: clamp(30px, 4vw, 44px); letter-spacing: -.06em; }
+    .section-heading > p:last-child { margin: 13px 0 0; color: var(--muted); line-height: 1.8; word-break: keep-all; }
+    .traits { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .trait {
+      min-height: 205px;
+      padding: 27px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: var(--card);
+    }
+    .trait-icon { font-size: 28px; }
+    .trait h3 { margin: 17px 0 8px; font-size: 18px; }
+    .trait p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.75; word-break: keep-all; }
+
+    .gallery-section { background: #eeefe7; }
+    .gallery { display: grid; grid-template-columns: 1.15fr .85fr .85fr; gap: 16px; }
+    .gallery figure { position: relative; min-height: 300px; margin: 0; overflow: hidden; border-radius: 20px; background: #dfe3d8; }
+    .gallery figure:first-child { min-height: 380px; }
+    .gallery img { height: 100%; min-height: inherit; object-fit: cover; transition: transform .35s ease; }
+    .gallery figure:hover img { transform: scale(1.04); }
+    .gallery figcaption {
+      position: absolute;
+      right: 12px;
+      bottom: 12px;
+      left: 12px;
+      padding: 12px 14px;
+      border-radius: 13px;
+      color: var(--ink);
+      background: rgba(255, 254, 250, .92);
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    .closing { padding: 0 0 90px; }
+    .closing-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 28px;
+      padding: clamp(28px, 5vw, 48px);
+      border-radius: 24px;
+      background: #e7eddf;
+    }
+    .closing-card h2 { margin: 0; font-size: clamp(24px, 4vw, 34px); letter-spacing: -.05em; }
+    .closing-card p { margin: 10px 0 0; color: var(--muted); line-height: 1.7; }
+    footer { display: flex; justify-content: space-between; gap: 18px; padding: 24px 0 30px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
+    footer a { text-decoration: none; }
+    footer a:hover { color: var(--green-dark); }
+
+    @media (max-width: 760px) {
+      .hero { min-height: 0; grid-template-columns: 1fr; gap: 35px; padding-block: 58px; }
+      .hero-photo { width: min(100%, 500px); justify-self: center; }
+      .hero-photo img { height: 390px; }
+      .traits { grid-template-columns: 1fr; }
+      .trait { min-height: 0; }
+      .gallery { grid-template-columns: 1fr 1fr; }
+      .gallery figure:first-child { grid-column: 1 / -1; min-height: 340px; }
+      .gallery figure { min-height: 240px; }
+      .closing-card { align-items: flex-start; flex-direction: column; }
+    }
+    @media (max-width: 480px) {
+      .wrap { width: min(100% - 32px, 1120px); }
+      .header { min-height: 68px; }
+      nav { gap: 13px; }
+      nav a { font-size: 12px; }
+      nav a:last-child { display: none; }
+      .hero { padding-block: 48px; }
+      .hero-photo img { height: 330px; }
+      .photo-note { right: -5px; }
+      .quick-facts { gap: 4px; }
+      .fact { align-items: flex-start; flex-direction: column; gap: 5px; }
+      .fact strong { font-size: 12px; }
+      section.content { padding: 68px 0; }
+      .gallery { gap: 10px; }
+      .gallery figure:first-child { min-height: 280px; }
+      .gallery figure { min-height: 180px; }
+      .closing { padding-bottom: 68px; }
+      footer { flex-direction: column; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <header class="wrap header" id="top">
+    <a class="brand" href="#top" aria-label="구름이의 작은 세상 홈">
+      <span class="brand-mark" aria-hidden="true">🐾</span>
+      구름이의 작은 세상
+    </a>
+    <nav aria-label="주요 메뉴">
+      <a href="#about">구름이 소개</a>
+      <a href="#charm">구름이 매력</a>
+      <a href="#gallery">사진첩</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="wrap hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="eyebrow">A LITTLE PAW, A LOT OF LOVE</p>
+        <h1 id="hero-title">우리 집 작은<br><span>행복, 구름이</span></h1>
+        <p>포근한 구름처럼 마음을 몽글몽글하게 해주는 사랑스러운 친구예요. 구름이의 귀여운 순간과 하루를 함께 만나 보세요.</p>
+        <a class="button" href="#about">구름이 만나러 가기 <span aria-hidden="true">↓</span></a>
+      </div>
+      <div class="hero-photo">
+        <img src="IMG_6845.JPG" alt="주인의 품에 안겨 있는 구름이" fetchpriority="high">
+        <div class="photo-note">오늘도 사랑스러움 한가득 ☁️</div>
+      </div>
+    </section>
+
+    <div class="intro-strip" id="about">
+      <div class="wrap quick-facts" aria-label="구름이 한눈에 보기">
+        <div class="fact"><span class="fact-icon" aria-hidden="true">🐶</span><div><span class="fact-label">이름</span><strong>구름이</strong></div></div>
+        <div class="fact"><span class="fact-icon" aria-hidden="true">☁️</span><div><span class="fact-label">매력</span><strong>포근한 미소</strong></div></div>
+        <div class="fact"><span class="fact-icon" aria-hidden="true">💛</span><div><span class="fact-label">특기</span><strong>마음 녹이기</strong></div></div>
+      </div>
+    </div>
+
+    <section class="content" id="charm">
+      <div class="wrap">
+        <div class="section-heading">
+          <p class="eyebrow">THINGS WE LOVE</p>
+          <h2>구름이의 사랑스러운 매력</h2>
+          <p>함께 있는 것만으로도 하루가 조금 더 따뜻해지는 이유예요.</p>
+        </div>
+        <div class="traits">
+          <article class="trait">
+            <span class="trait-icon" aria-hidden="true">🌤️</span>
+            <h3>햇살 같은 존재</h3>
+            <p>구름이의 밝은 눈망울을 마주하면 평범한 하루도 특별해져요.</p>
+          </article>
+          <article class="trait">
+            <span class="trait-icon" aria-hidden="true">🐾</span>
+            <h3>작은 발자국</h3>
+            <p>총총 걸어 다니는 모습만 봐도 저절로 미소가 지어져요.</p>
+          </article>
+          <article class="trait">
+            <span class="trait-icon" aria-hidden="true">🧸</span>
+            <h3>포근한 친구</h3>
+            <p>곁에 머무는 다정함으로 집 안을 따뜻하게 채워 준답니다.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="content gallery-section" id="gallery">
+      <div class="wrap">
+        <div class="section-heading">
+          <p class="eyebrow">GOOREUM'S PHOTO ALBUM</p>
+          <h2>귀여운 순간 저장하기</h2>
+          <p>보고 있으면 자꾸 웃음이 나는 강아지들의 순간을 모았어요.</p>
+        </div>
+        <div class="gallery">
+          <figure>
+            <img src="https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&amp;fit=crop&amp;w=1000&amp;q=85" alt="카메라를 바라보는 귀여운 강아지" loading="lazy">
+            <figcaption>초롱초롱, 무슨 생각 중일까?</figcaption>
+          </figure>
+          <figure>
+            <img src="https://images.unsplash.com/photo-1537151608828-ea2b11777ee8?auto=format&amp;fit=crop&amp;w=700&amp;q=85" alt="산책을 즐기는 강아지" loading="lazy">
+            <figcaption>바깥 구경은 언제나 신나요</figcaption>
+          </figure>
+          <figure>
+            <img src="https://images.unsplash.com/photo-1518717758536-85ae29035b6d?auto=format&amp;fit=crop&amp;w=700&amp;q=85" alt="잔디밭에 앉아 쉬는 강아지" loading="lazy">
+            <figcaption>잠깐 쉬었다 갈까요?</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="wrap closing">
+      <div class="closing-card">
+        <div>
+          <h2>구름이에게 따뜻한 인사를 건네 보세요 🐾</h2>
+          <p>작은 발자국이 전해 주는 큰 행복, 오늘도 함께해요.</p>
+        </div>
+        <a class="button" href="#top">맨 위로 돌아가기 <span aria-hidden="true">↑</span></a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="wrap">
+    <span>구름이의 작은 세상 · 사랑을 담아 만들었어요</span>
+    <a href="#top">처음으로 ↑</a>
+  </footer>
+</body>
+</html>
